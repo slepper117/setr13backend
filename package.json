@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "description": "Trabalho desenvolvido para STER",
   "main": "app.js",
+  "type": "module",
   "scripts": {
     "start": "node .",
-    "watch": "nodemon ."
+    "watch": "nodemon -r dotenv/config ."
   },
   "repository": {
     "type": "git",
@@ -18,7 +19,10 @@
   },
   "homepage": "https://github.com/slepper117/setr13backend#readme",
   "dependencies": {
-    "express": "^4.18.2"
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "knex": "^2.3.0",
+    "pg": "^8.8.0"
   },
   "devDependencies": {
     "eslint": "^8.27.0",
