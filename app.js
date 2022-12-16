@@ -1,8 +1,11 @@
+import bcrypt from 'bcrypt';
 import express from 'express';
-import bookingsRoutes from './routes/bookings.js';
-import roomsRoutes from './routes/rooms.js';
-import clocksRoutes from './routes/clocks.js';
+import accessRoutes from './routes/access.js';
 import areasRoutes from './routes/areas.js';
+import authRoutes from './routes/auth.js';
+import bookingsRoutes from './routes/bookings.js';
+import clocksRoutes from './routes/clocks.js';
+import roomsRoutes from './routes/rooms.js';
 import usersRoutes from './routes/users.js';
 import { Error404 } from './classes/errors.js';
 import { errorLogger, errorHandler } from './middleware/errorHandling.js';
@@ -16,14 +19,20 @@ const domain = process.env.DOMAIN;
 app.use(express.json());
 
 // Rotas
-app.use('/booking', bookingsRoutes);
-app.use('/rooms', roomsRoutes);
-app.use('/clock', clocksRoutes);
+app.use('/access', accessRoutes);
 app.use('/areas', areasRoutes);
+app.use('/auth', authRoutes);
+app.use('/bookings', bookingsRoutes);
+app.use('/clocks', clocksRoutes);
+app.use('/rooms', roomsRoutes);
 app.use('/users', usersRoutes);
 
-app.get('/', (req, res) => {
-  res.json({ teste: 'ola' });
+app.post('/', async (req, res) => {
+  const { password } = req.body;
+
+  const salt = await bcrypt.genSalt();
+  const hash = await bcrypt.hash(password, salt);
+  res.json({ hash });
 });
 
 // Middleware de Erros

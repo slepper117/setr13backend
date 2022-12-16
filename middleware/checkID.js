@@ -6,7 +6,7 @@ import { Error400, Error404 } from '../classes/errors.js';
  * @param {string} relation Table were search is going to be made
  * @returns Middleware with given parameter
  */
-const checkID = (relation) => async (req, _res, next) => {
+const checkID = (relation) => async (req, res, next) => {
   const { id } = req.params;
 
   try {

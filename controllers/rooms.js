@@ -17,7 +17,7 @@ const create = async (req, res, next) => {
       .select(
         'rooms.id',
         'rooms.name',
-        query.raw('count(bookings.id)::INTEGER')
+        query.raw('count(bookings.id)::INTEGER AS bookings')
       )
       .from('rooms')
       .leftJoin('bookings', 'rooms.id', 'bookings.room')
@@ -38,7 +38,7 @@ const read = async (req, res, next) => {
       .select(
         'rooms.id',
         'rooms.name',
-        query.raw('count(bookings.id)::INTEGER')
+        query.raw('count(bookings.id)::INTEGER AS bookings')
       )
       .from('rooms')
       .leftJoin('bookings', 'rooms.id', 'bookings.room')
@@ -70,7 +70,7 @@ const update = async (req, res, next) => {
       .select(
         'rooms.id',
         'rooms.name',
-        query.raw('count(bookings.id)::INTEGER')
+        query.raw('count(bookings.id)::INTEGER AS bookings')
       )
       .from('rooms')
       .leftJoin('bookings', 'rooms.id', 'bookings.room')
@@ -92,7 +92,7 @@ const destroy = async (req, res, next) => {
       .select(
         'rooms.id',
         'rooms.name',
-        query.raw('count(bookings.id)::INTEGER')
+        query.raw('count(bookings.id)::INTEGER AS bookings')
       )
       .from('rooms')
       .leftJoin('bookings', 'rooms.id', 'bookings.room')
@@ -110,7 +110,10 @@ const destroy = async (req, res, next) => {
 
         res.json({ deleted: getDelRoom[0] });
       } else {
-        throw new Error400('cannot-delete', 'Rooms as bookings associated');
+        throw new Error400(
+          'cannot-delete-rooms',
+          'Rooms as bookings associated'
+        );
       }
     }
   } catch (e) {
@@ -126,12 +129,12 @@ const list = async (req, res, next) => {
       .select(
         'rooms.id',
         'rooms.name',
-        query.raw('count(bookings.id)::INTEGER')
+        query.raw('count(bookings.id)::INTEGER AS bookings')
       )
       .from('rooms')
       .leftJoin('bookings', 'rooms.id', 'bookings.room')
       .groupBy('rooms.id')
-      .orderBy(`${orderby || 'count'}`, `${order || 'DESC'}`);
+      .orderBy(`${orderby || 'bookings'}`, `${order || 'DESC'}`);
 
     if (listRooms.length === 0)
       throw new Error404(

@@ -15,14 +15,14 @@ const create = async (req, res, next) => {
 
     const getNewArea = await query
       .select(
-        'areas.id',
-        'areas.name',
-        query.raw('count(bookings.id)::INTEGER')
+        'id',
+        'name',
+        query.raw(
+          "coalesce((SELECT array_to_json(array_agg(row_to_json(x))) FROM (SELECT u.id, u.username, u.name FROM setr.users_areas ua JOIN setr.users u ON u.id = ua.id_user WHERE ua.id_area = areas.id)x),'[]') AS authorized"
+        )
       )
       .from('areas')
-      .leftJoin('bookings', 'areas.id', 'bookings.room')
-      .where('areas.id', newArea[0].id)
-      .groupBy('areas.id');
+      .where('id', newArea[0].id);
 
     res.json(getNewArea[0]);
   } catch (e) {
@@ -36,14 +36,14 @@ const read = async (req, res, next) => {
   try {
     const getArea = await query
       .select(
-        'areas.id',
-        'areas.name',
-        query.raw('count(bookings.id)::INTEGER')
+        'id',
+        'name',
+        query.raw(
+          "coalesce((SELECT array_to_json(array_agg(row_to_json(x))) FROM (SELECT u.id, u.username, u.name FROM setr.users_areas ua JOIN setr.users u ON u.id = ua.id_user WHERE ua.id_area = areas.id)x),'[]') AS authorized"
+        )
       )
       .from('areas')
-      .leftJoin('bookings', 'areas.id', 'bookings.room')
-      .where('areas.id', id)
-      .groupBy('areas.id');
+      .where({ id });
 
     res.json(getArea[0]);
   } catch (e) {
@@ -62,22 +62,20 @@ const update = async (req, res, next) => {
         'Check if the mandatory properties are missing'
       );
 
-    const updateArea = await query('areas')
-      .where({ id })
-      .update({ name }, 'id');
+    await query('areas').where({ id }).update({ name });
 
-    const getUpdatedArea = await query
+    const getArea = await query
       .select(
         'areas.id',
         'areas.name',
-        query.raw('count(bookings.id)::INTEGER')
+        query.raw(
+          "coalesce((SELECT array_to_json(array_agg(row_to_json(x))) FROM (SELECT u.id, u.username, u.name FROM setr.users_areas ua JOIN setr.users u ON u.id = ua.id_user WHERE ua.id_area = areas.id)x),'[]') AS authorized"
+        )
       )
       .from('areas')
-      .leftJoin('bookings', 'areas.id', 'bookings.room')
-      .where('areas.id', updateArea[0].id)
-      .groupBy('areas.id');
+      .where({ id });
 
-    res.json(getUpdatedArea[0]);
+    res.json(getArea[0]);
   } catch (e) {
     next(e);
   }
@@ -90,16 +88,16 @@ const destroy = async (req, res, next) => {
   try {
     const getDelArea = await query
       .select(
-        'areas.id',
-        'areas.name',
-        query.raw('count(bookings.id)::INTEGER')
+        'id',
+        'name',
+        query.raw(
+          "coalesce((SELECT array_to_json(array_agg(row_to_json(x))) FROM (SELECT u.id, u.username, u.name FROM setr.users_areas ua JOIN setr.users u ON u.id = ua.id_user WHERE ua.id_area = areas.id)x),'[]') AS authorized"
+        )
       )
       .from('areas')
-      .leftJoin('bookings', 'areas.id', 'bookings.room')
-      .where('areas.id', id)
-      .groupBy('areas.id');
+      .where({ id });
 
-    if (getDelArea.count === 0) {
+    if (getDelArea[0].authorized.length === 0) {
       await query('areas').where({ id }).del();
 
       res.json({ deleted: getDelArea[0] });
@@ -110,7 +108,7 @@ const destroy = async (req, res, next) => {
 
         res.json({ deleted: getDelArea[0] });
       } else {
-        throw new Error400('cannot-delete', 'Areas as bookings associated');
+        throw new Error400('cannot-delete-area', 'Area as users associated');
       }
     }
   } catch (e) {
@@ -124,14 +122,14 @@ const list = async (req, res, next) => {
   try {
     const listAreas = await query
       .select(
-        'areas.id',
-        'areas.name',
-        query.raw('count(bookings.id)::INTEGER')
+        'id',
+        'name',
+        query.raw(
+          "coalesce((SELECT array_to_json(array_agg(row_to_json(x))) FROM (SELECT u.username, u.name FROM setr.users_areas ua JOIN setr.users u ON u.id = ua.id_user WHERE ua.id_area = areas.id)x),'[]') AS authorized"
+        )
       )
       .from('areas')
-      .leftJoin('bookings', 'areas.id', 'bookings.room')
-      .groupBy('areas.id')
-      .orderBy(`${orderby || 'count'}`, `${order || 'DESC'}`);
+      .orderBy(`${orderby || 'id'}`, `${order || 'DESC'}`);
 
     if (listAreas.length === 0)
       throw new Error404(

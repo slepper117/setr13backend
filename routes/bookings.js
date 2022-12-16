@@ -10,4 +10,7 @@ router.get('/:id', checkID('bookings'), bookingsController.read);
 router.put('/:id', checkID('bookings'), bookingsController.update);
 router.delete('/:id', checkID('bookings'), bookingsController.destroy);
 
+// Validar a reserva
+router.post('/:id/validate', checkID('bookings'), bookingsController.validate);
+
 export default router;

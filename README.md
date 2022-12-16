@@ -21,3 +21,8 @@ O projeto é executado com o apoio de um servidor de PostgreSQL, com a seguinte 
 
 ### Versão 2.1
 - Alterações na base de dados
+
+### Versão 2.2
+- Adição da Autenticação
+- Adição do controlo de acesso às salas
+- Alteração do controlador de salas, areas e reservas
