@@ -1,56 +1,26 @@
 import query from '../database/knex.js';
+import checkUserTag from '../functions/checkUserTag.js';
 import { Error401, Error404 } from '../classes/errors.js';
 
-/**
- * Function to check if Tag is associated a user
- * @param {*} tag
- * @param {*} datetime
- * @param {*} schedule
- * @returns
- */
-const checkUser = async (tag, datetime, schedule = true) => {
-  const datetimeDay = datetime.getUTCDay();
-
-  const getUser = await query
-    .select('id', 'user_role', 'name', 'schedule')
-    .from('users')
-    .where({ tag });
-
-  if (getUser.length === 0)
-    throw new Error404(
-      'tag-not-found',
-      "The tag provided dosen't match with a user"
-    );
-
-  if (
-    getUser[0].schedule[datetimeDay] === '0' &&
-    schedule &&
-    getUser[0].user_role !== 1
-  )
-    throw new Error401('not-authorized', "The user isn't in work schedule");
-
-  return getUser[0];
-};
-
 const clockIn = async (req, res, next) => {
+  const { userID } = req.user;
   const { tag } = req.body;
   const datetime = new Date();
   const datetimeISO = datetime.toISOString();
 
   try {
-    const user = await checkUser(tag, datetime);
+    const user = await checkUserTag(tag, datetime);
 
-    await query
-      .insert({
-        id_user: user.id,
-        direction: 'in',
-        datetime: datetimeISO,
-      })
-      .into('clocks');
+    await query('clocks').insert({
+      id_user: user.id,
+      direction: 'in',
+      datetime: datetimeISO,
+      log: userID,
+    });
 
     res.json({
-      username: user.name,
-      direction: 'in',
+      status: 'authorized',
+      name: user.name,
       datetime: datetimeISO,
     });
   } catch (e) {
@@ -59,22 +29,24 @@ const clockIn = async (req, res, next) => {
 };
 
 const clockOut = async (req, res, next) => {
+  const { userID } = req.user;
   const { tag } = req.body;
   const datetime = new Date();
   const datetimeISO = datetime.toISOString();
 
   try {
-    const user = await checkUser(tag, datetime, false);
+    const user = await checkUserTag(tag, datetime, true);
 
     await query('clocks').insert({
       id_user: user.id,
       direction: 'out',
       datetime: datetimeISO,
+      log: userID,
     });
 
     res.json({
+      status: 'authorized',
       name: user.name,
-      direction: 'out',
       datetime: datetimeISO,
     });
   } catch (e) {
@@ -89,7 +61,7 @@ const accessArea = async (req, res, next) => {
   const datetimeISO = datetime.toISOString();
 
   try {
-    const user = await checkUser(tag, datetime);
+    const user = await checkUserTag(tag, datetime);
 
     const accessArea = await query('users_areas').where({
       id_user: user.id,
@@ -103,7 +75,7 @@ const accessArea = async (req, res, next) => {
       );
 
     res.json({
-      status: 'authorized-area',
+      status: 'authorized',
       name: user.name,
       datetime: datetimeISO,
     });
@@ -119,30 +91,32 @@ const accessRoom = async (req, res, next) => {
   const datetimeISO = datetime.toISOString();
 
   try {
-    const user = await checkUser(tag, datetime);
+    const user = await checkUserTag(tag, datetime);
 
     const accessRoom = await query
       .select('validated')
       .from('bookings')
-      .where('room', id)
-      .andWhere('author', user.id)
+      .where('id_room', id)
+      .andWhere('id_user', user.id)
       .andWhere('start', '<=', datetimeISO)
       .andWhere('final', '>=', datetimeISO);
 
-    if (accessRoom.length === 0)
-      throw new Error404(
-        'booking-not-found',
-        "The user dosen't have a booking for this room."
-      );
+    if (!user.access) {
+      if (accessRoom.length === 0)
+        throw new Error404(
+          'booking-not-found',
+          "The user dosen't have a booking for this room."
+        );
 
-    if (!accessRoom[0].validated)
-      throw new Error401(
-        'not-authorized',
-        'The booking was not been validated by a supervisor'
-      );
+      if (!accessRoom[0].validated)
+        throw new Error401(
+          'not-authorized',
+          'The booking was not been validated by a supervisor'
+        );
+    }
 
     res.json({
-      status: 'authorized-room',
+      status: 'authorized',
       name: user.name,
       datetime: datetimeISO,
     });

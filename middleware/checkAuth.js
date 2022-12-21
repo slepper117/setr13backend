@@ -1,30 +1,38 @@
-import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
-import query from '../database/index.js';
+import jwt from 'jsonwebtoken';
+import query from '../database/knex.js';
+import checkPermission from '../functions/checkPermission.js';
 import { Error401 } from '../classes/errors.js';
 
-const checkAuth = async (req, _res, next) => {
+/**
+ * Function to check authentication
+ * @param {string} route Route were the access is done
+ * @param {string} action action to be tacken
+ * @returns Result of authentication
+ */
+const checkAuth = (route, action) => async (req, res, next) => {
   const { token } = req.cookies;
+  let id, control;
 
   try {
-    // Verifies is Token exists
-    if (
-      !token &&
-      (!req.headers.authorization ||
-        req.headers.authorization.indexOf('Basic ') === undefined)
-    )
-      throw new Error401('route-protected', 'Not Authorized');
-
+    // Verifies is Token or API Key exists
     if (token) {
       // Validates Token
       const validateUser = jwt.verify(token, process.env.JWT_SECRET);
 
-      // Return ID
-      req.user = validateUser.id;
-      next();
-    }
+      // Get Permissions
+      const getPermissions = await checkPermission(
+        validateUser.id,
+        route,
+        action
+      );
 
-    if (
+      // Return JSON object with information
+      req.user = {
+        userID: validateUser.id,
+        userControl: getPermissions,
+      };
+    } else if (
       req.headers.authorization &&
       req.headers.authorization.indexOf('Basic ') === 0
     ) {
@@ -37,38 +45,42 @@ const checkAuth = async (req, _res, next) => {
       );
 
       // Destructs array into values
-      const [user, key] = credentials.split(':');
+      const [consumer, secret] = credentials.split(':');
 
-      // Verifies that key exists and user is valid
-      const queryKey = await query(
-        `SELECT uk.id, uk.secret, u.status FROM crm.users_keys uk LEFT JOIN crm.users u ON uk.id_users = u.id WHERE uk.consumer = '${user}'`
-      );
-      if (queryKey.rowCount === 0)
+      // Get User ID and Secret
+      const getUser = await query
+        .select('id_user', 'secret')
+        .from('user_keys')
+        .where({ consumer });
+
+      // Checks if secret is valid
+      const checkSecret = await bcrypt.compare(secret, getUser[0].secret);
+      if (!checkSecret)
         throw new Error401(
-          'authorization-error',
-          'Wrong Consumer or Secret Key'
-        );
-      if (queryKey.rows[0].status !== 'active')
-        throw new Error401('authorization-error', "User isn't active");
-
-      const { id, secret } = queryKey.rows[0];
-
-      // Verifies the correct password
-      const correctPassword = await bcrypt.compare(key, secret);
-      if (!correctPassword)
-        throw new Error401(
-          'authorization-error',
-          'Wrong Consumer or Secret Key'
+          'consumer-secret-wrong',
+          'The consumer key or secret key provided are wrong'
         );
 
-      // Updates Login info
-      const updateKey = await query(
-        `UPDATE crm.users_keys SET (date, ip) = ('${new Date().toISOString()}', '127.0.0.1') WHERE id = ${id} RETURNING id_users`
+      // Get Permissions
+      const getPermissions = await checkPermission(
+        getUser[0].id_user,
+        route,
+        action
       );
 
-      req.user = updateKey.rows[0].id_users;
-      next();
+      // Return JSON object with information
+      req.user = {
+        userID: getUser[0].id_user,
+        userControl: getPermissions,
+      };
+    } else {
+      throw new Error401(
+        'route-protected',
+        'Not Authorized to access this route'
+      );
     }
+
+    next();
   } catch (err) {
     next(err);
   }

@@ -1,5 +1,5 @@
-import bcrypt from 'bcrypt';
 import express from 'express';
+import cookieParser from 'cookie-parser';
 import accessRoutes from './routes/access.js';
 import areasRoutes from './routes/areas.js';
 import authRoutes from './routes/auth.js';
@@ -17,6 +17,7 @@ const domain = process.env.DOMAIN;
 
 // Configurações
 app.use(express.json());
+app.use(cookieParser());
 
 // Rotas
 app.use('/access', accessRoutes);
@@ -26,14 +27,6 @@ app.use('/bookings', bookingsRoutes);
 app.use('/clocks', clocksRoutes);
 app.use('/rooms', roomsRoutes);
 app.use('/users', usersRoutes);
-
-app.post('/', async (req, res) => {
-  const { password } = req.body;
-
-  const salt = await bcrypt.genSalt();
-  const hash = await bcrypt.hash(password, salt);
-  res.json({ hash });
-});
 
 // Middleware de Erros
 app.all('*', (req, res, next) => {

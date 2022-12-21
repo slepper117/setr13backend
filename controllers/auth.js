@@ -2,19 +2,22 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import query from '../database/knex.js';
 import { Error400, Error401 } from '../classes/errors.js';
+import cookiesConfig from '../config/cookies.js';
 
 const login = async (req, res, next) => {
   const { username, password } = req.body;
 
   try {
+    // Check mandatory properties
     if (!username || !password)
       throw new Error400(
         'mandatory-props-are-missing',
         'Check if the mandatory properties are missing'
       );
 
+    // Check if user exists
     const userExists = await query('users')
-      .select('id', 'password', 'user_role')
+      .select('id', 'password')
       .where({ username });
 
     if (userExists.length === 0)
@@ -23,6 +26,7 @@ const login = async (req, res, next) => {
         'The username or password provided are wrong'
       );
 
+    // Check if password is correct
     const checkPassword = await bcrypt.compare(
       password,
       userExists[0].password
@@ -34,22 +38,16 @@ const login = async (req, res, next) => {
         'The username or password provided are wrong'
       );
 
-    console.log(userExists[0]);
+    // Creates a token
     const token = jwt.sign(
       {
         id: userExists[0].id,
-        role: userExists[0].user_role,
       },
       process.env.JWT_SECRET
     );
 
-    res
-      .cookie('token', token, {
-        httpOnly: true,
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-        secure: process.env.NODE_ENV === 'production' ? true : false,
-      })
-      .send();
+    // Sends token as a Cookie
+    res.cookie('token', token, cookiesConfig).send();
   } catch (e) {
     next(e);
   }
@@ -57,11 +55,10 @@ const login = async (req, res, next) => {
 
 const logout = (req, res, next) => {
   try {
+    // Clears Cookie Token
     res
       .cookie('token', '', {
-        httpOnly: true,
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-        secure: process.env.NODE_ENV === 'production' ? true : false,
+        ...cookiesConfig,
         expires: new Date(0),
       })
       .send();

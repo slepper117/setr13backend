@@ -1,13 +1,29 @@
 import express from 'express';
 import checkID from '../middleware/checkID.js';
+import checkAuth from '../middleware/checkAuth.js';
 import * as clocksController from '../controllers/clocks.js';
 
 const router = express.Router();
 
-router.get('/', clocksController.list);
-router.post('/', clocksController.create);
-router.get('/:id', checkID('bookings'), clocksController.read);
-router.put('/:id', checkID('bookings'), clocksController.update);
-router.delete('/:id', checkID('bookings'), clocksController.destroy);
+router.get('/', checkAuth('clocks', 'list'), clocksController.list);
+router.post('/', checkAuth('clocks', 'create'), clocksController.create);
+router.get(
+  '/:id',
+  checkAuth('clocks', 'read'),
+  checkID('clocks'),
+  clocksController.read
+);
+router.put(
+  '/:id',
+  checkAuth('clocks', 'update'),
+  checkID('clocks'),
+  clocksController.update
+);
+router.delete(
+  '/:id',
+  checkAuth('clocks', 'delete'),
+  checkID('clocks'),
+  clocksController.destroy
+);
 
 export default router;
