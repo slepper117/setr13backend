@@ -1,0 +1,6 @@
+{
+  "yaml.schemas": {
+    "file:///c%3A/Users/renat/.vscode/extensions/atlassian.atlascode-2.10.12/resources/schemas/pipelines-schema.json": "bitbucket-pipelines.yml",
+    "openapi:v3": "file:///c%3A/IPCA/SETR/setr13backend/openAPI3.yml"
+  }
+}

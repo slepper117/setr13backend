@@ -1,5 +1,7 @@
+import morgan from 'morgan';
 import express from 'express';
 import cookieParser from 'cookie-parser';
+import logger from './config/winston.js';
 import accessRoutes from './routes/access.js';
 import areasRoutes from './routes/areas.js';
 import authRoutes from './routes/auth.js';
@@ -18,6 +20,11 @@ const domain = process.env.DOMAIN;
 // Configurações
 app.use(express.json());
 app.use(cookieParser());
+app.use(
+  morgan(':method :url :status :res[content-length] - :response-time ms', {
+    stream: logger.stream,
+  })
+);
 
 // Rotas
 app.use('/access', accessRoutes);
@@ -46,5 +53,5 @@ app.use(errorHandler);
 
 // Servidor
 app.listen(port, () =>
-  console.log(`A aplicação esta a funcionar em ${domain}:${port}`)
+  logger.info(`A aplicação esta a funcionar em ${domain}:${port}`)
 );

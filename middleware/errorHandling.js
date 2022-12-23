@@ -1,9 +1,11 @@
+import logger from '../config/winston.js';
+
 const errorLogger = (err, req, res, next) => {
   const { originalUrl, ip } = req;
   if (err.statusCode === 400) {
-    console.log({ error: err, request: { originalUrl, ip } });
+    logger.warn({ error: err, request: { originalUrl, ip } });
   } else {
-    console.log({ error: err, request: { originalUrl, ip } });
+    logger.error({ error: err, request: { originalUrl, ip } });
   }
   next(err);
 };

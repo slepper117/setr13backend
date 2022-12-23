@@ -1,0 +1,139 @@
+openapi: 3.0.2
+info:
+  title: SETR Backend - OpenAPI 3.0
+  description: API desenvolvida para suportar
+  version: 3.0.0
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+servers:
+  - url: https://setr.braintechcloud.com
+tags:
+  - name: Access
+    description: Autorization of Users
+  - name: Areas
+    description: Operations about Areas
+  - name: Bookings
+    description: Operations about Bookings
+  - name: Clocks
+    description: Operations about Clocks
+  - name: Rooms
+    description: Operations about Rooms
+  - name: Users
+    description: Operations about Users
+paths:
+  /access/clockIn:
+    post:
+      tags:
+        - Access
+      summary: Register Clock In
+      description: Check if Tag exists, and if user is on work schesule
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                tag:
+                  type: string
+                  format: int64
+                  example: eb:71:77:bc
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+        '400':
+          description: Successful operation
+        '401':
+          description: Successful operation
+        '404':
+          description: Successful operation
+  /access/clockOut:
+    post:
+      tags:
+        - Access
+      summary: Register Clock Out
+      description: Check if Tag exists, and if user is on work schesule
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                tag:
+                  type: string
+                  format: int64
+                  example: eb:71:77:bc
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+        '400':
+          description: Successful operation
+        '401':
+          description: Successful operation
+        '404':
+          description: Successful operation
+  /access/area/{id}:
+    post:
+      tags:
+        - Access
+      summary: Register Clock Out
+      description: Check if Tag exists, and if user is on work schesule
+      parameters:
+        - name: petId
+          in: path
+          description: ID of pet to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                tag:
+                  type: string
+                  format: int64
+                  example: eb:71:77:bc
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+        '400':
+          description: Successful operation
+        '401':
+          description: Successful operation
+        '404':
+          description: Successful operation
+  /access/rooms/{id}:
+    post:
+      tags:
+        - Access
+      summary: Register Clock Out
+      description: Check if Tag exists, and if user is on work schesule
+      parameters:
+        - name: id
+          in: path
+          description: ID of room to return
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                tag:
+                  type: string
+                  format: int64
+                  example: eb:71:77:bc
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+        '400':
+          description: Successful operation
+        '401':
+          description: Successful operation
+        '404':
+          description: Successful operation

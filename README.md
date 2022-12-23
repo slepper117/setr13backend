@@ -41,3 +41,8 @@ O projeto é executado com o apoio de um servidor de PostgreSQL, com a seguinte 
 - Alterações à base de dados
 - Correção de Bugs
 - Testes e adição de novas validações
+
+### Versão 3.1
+
+- Configuração do Logger
+- Preparação da documentação
