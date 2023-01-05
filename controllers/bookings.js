@@ -27,7 +27,7 @@ const create = async (req, res, next) => {
 
     // Check if date final is bigger than start
     if (start > final)
-      throw new Error401(
+      throw new Error400(
         'start-final-incompatible',
         'The date set as start is bigger than the final'
       );
@@ -156,7 +156,7 @@ const update = async (req, res, next) => {
         (!start && final && getBooking[0].start.toISOString() > final) ||
         (start && final && start > final)
       )
-        throw new Error401(
+        throw new Error400(
           'start-final-incompatible',
           'The date set as start is bigger than the final'
         );

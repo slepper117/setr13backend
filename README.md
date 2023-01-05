@@ -46,3 +46,7 @@ O projeto é executado com o apoio de um servidor de PostgreSQL, com a seguinte 
 
 - Configuração do Logger
 - Preparação da documentação
+
+### Versão 3.2
+
+- Correção de pequenos Bugs

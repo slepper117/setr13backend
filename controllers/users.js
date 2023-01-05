@@ -295,7 +295,7 @@ const list = async (req, res, next) => {
         )
       )
       .from('users')
-      .where(query.raw(`status = '${status || 'user'}' ${role && roleQuery}`))
+      .where(query.raw(`status = '${status || 'user'}' ${roleQuery || ''}`))
       .orderBy(orderby || 'id', order || 'ASC');
 
     if (listUsers.length === 0)

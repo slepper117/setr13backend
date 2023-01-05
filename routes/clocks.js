@@ -21,7 +21,7 @@ router.put(
 );
 router.delete(
   '/:id',
-  checkAuth('clocks', 'delete'),
+  checkAuth('clocks', 'destroy'),
   checkID('clocks'),
   clocksController.destroy
 );

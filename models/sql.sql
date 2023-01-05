@@ -94,12 +94,12 @@ INSERT INTO setr.user_roles(name, permissions, control, access) VALUES
 ('Funcionários', '{"access": {"clockIn": false, "clockOut": false, "area": false, "room": false}, "areas": {"list": false, "create": false, "read": false, "update": false, "destroy": false}, "bookings": {"list": true, "create": true, "read": true, "update": true, "destroy": true, "validate": false}, "clocks": {"list": true, "create": false, "read": false, "update": false, "destroy": false}, "rooms": {"list": true, "create": false, "read": true, "update": false, "destroy": false}, "users": {"list": false, "create": false, "read": true, "update": true, "destroy": false}} ', 'false', 'false');
 
 INSERT INTO setr.users(id_user_role, username, password, name, tag, schedule, status) VALUES 
-(1, 'rdantas', '$2b$10$ykHh0eO0UWEHWS8K70S1de4SOmvMDJa2frq2hTfdePDWjSBbbMHUe', 'Renato Dantas', 'eb:71:77:bb', '0111110', 'user'),
+(1, 'rdantas', '$2b$10$ykHh0eO0UWEHWS8K70S1de4SOmvMDJa2frq2hTfdePDWjSBbbMHUe', 'Renato Dantas', 'eb7177bb', '0111110', 'user'),
 (2, 'arduino', '', 'Arduino', '', '', 'system'),
-(3, 'fmota', '$2b$10$YbHI9EAu1QXCn1rhUJzw6OSG5ZbLRQrO5nc8ey3axlD0UpEh1hZBG', 'Fábio Mota', 'eb:71:77:bu', '0111110', 'user'),
-(4, 'jmorais', '$2b$10$pnIImvJjnsIFKmwsH5.IFOe1CBlsjY86vOXdiUj6jV9HFntEQWZq6', 'João Morais', 'eb:71:77:bc', '0111110', 'user'),
-(4, 'jguedes', '$2b$10$069kitPOLStSBUoesC7Di.L8XkVtFsca8Gz7peH9kZiosL2ZyJkmC', 'Jorge Guedes', 'eb:71:77:bg', '0011111', 'user'),
-(4, 'bsara', '$2b$10$CkEisOvHvilPgUPHic5ykuNG9Yv7isZ1SH.8xbgb8bD9Fi6P1noNS', 'Benjamin da Sara', 'eb:71:77:bt', '1111110', 'user');
+(3, 'fmota', '$2b$10$YbHI9EAu1QXCn1rhUJzw6OSG5ZbLRQrO5nc8ey3axlD0UpEh1hZBG', 'Fábio Mota', 'eb7177bu', '0111110', 'user'),
+(4, 'jmorais', '$2b$10$pnIImvJjnsIFKmwsH5.IFOe1CBlsjY86vOXdiUj6jV9HFntEQWZq6', 'João Morais', 'eb7177bc', '0111110', 'user'),
+(4, 'jguedes', '$2b$10$069kitPOLStSBUoesC7Di.L8XkVtFsca8Gz7peH9kZiosL2ZyJkmC', 'Jorge Guedes', 'eb7177bg', '0011111', 'user'),
+(4, 'bsara', '$2b$10$CkEisOvHvilPgUPHic5ykuNG9Yv7isZ1SH.8xbgb8bD9Fi6P1noNS', 'Benjamin da Sara', 'eb7177bt', '1111110', 'user');
 
 INSERT INTO setr.user_keys(id_user, consumer, secret) VALUES
 (1, '1blQ0D2KM2lPNAPB', '$2b$10$LXvyYKwyRTx9HcJjUd7Pi.c19ccteemvcxOQuY284U4XycBbwgUlO'),
